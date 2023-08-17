@@ -23,6 +23,13 @@ export const userMessages = {
   REQUEST_TOKEN_IS_REQUIRED: 'Request token is required',
   REFRESH_TOKEN_MUST_BE_STRING: 'Refresh token must be a string',
   REFRESH_TOKEN_IS_INVALID: 'Refresh token is invalid',
+  REFRESH_TOKEN_IS_REQUIRED: 'Refresh token is required',
   USED_REFRESH_TOKEN_OR_NOT_EXIST: 'Used refresh token or not exist',
   LOGOUT_SUCCESS: 'Logout success',
+  EMAIL_VERIFY_TOKEN_IS_REQUIRED: 'Email verify token is required',
+  EMAIL_ALREADY_VERIFIED_BEFORE: 'Email already verified before',
+  VERIFY_EMAIL_SUCCESS: 'Verify email success',
+  EMAIL_VERIFY_SUCCESS: 'Email verify success',
+  USER_NOT_FOUND: 'User not found',
+  RESEND_VERIFY_EMAIL_SUCCESS: 'Resend verify email success'
 } as const

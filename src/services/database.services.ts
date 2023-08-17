@@ -28,7 +28,6 @@ class DatabaseService {
   get refeshTokens(): Collection<RefreshToken> {
     return this.db.collection(process.env.DB_REFESH_TOKEN_COLECTION as string)
   }
-  
 }
 
 const databaseService = new DatabaseService()
