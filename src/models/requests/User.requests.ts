@@ -10,8 +10,12 @@ export interface RegisterReqBody {
 }
 
 export interface LoginReqBody {
-  email: string,
+  email: string
   password: string
+}
+
+export interface ForgotPasswordReqBody {
+  email: string
 }
 
 export interface TokenPayload extends JwtPayload {
