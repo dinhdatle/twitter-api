@@ -130,15 +130,18 @@ class UsersService {
     return { message: userMessages.CHECK_EMAIL_TO_RESET_PASSWORD }
   }
 
- async resetPassword(user_id: string, password: string) {
+  async resetPassword(user_id: string, password: string) {
     databaseService.users.updateOne(
       { _id: new ObjectId(user_id) },
-      { $set: { password: hashPassword(password),forgot_password_token:'', updated_at: new Date() } }
+      { $set: { password: hashPassword(password), forgot_password_token: '', updated_at: new Date() } }
     )
     return { message: userMessages.RESET_PASSWORD_SUCCESS }
   }
 
-  
+  async getMe(user_id: string) {
+    const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) },{projection:{password:0,email_verify_token:0,forgot_password_token:0}})
+    return user
+  }
 }
 
 const usersService = new UsersService()

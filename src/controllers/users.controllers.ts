@@ -76,8 +76,14 @@ export const verifyForgotPasswordController = async (req: Request, res: Response
 }
 
 export const resetPasswordController = async (req: Request, res: Response, next: NextFunction) => {
-  const {user_id} = req.decoded_forgot_password_token as TokenPayload
-  const {password} = req.body
-  const result = await usersService.resetPassword(user_id,password)
+  const { user_id } = req.decoded_forgot_password_token as TokenPayload
+  const { password } = req.body
+  const result = await usersService.resetPassword(user_id, password)
   res.json(result)
+}
+
+export const getMeController = async (req: Request, res: Response, next: NextFunction) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const user = await usersService.getMe(user_id)
+  return res.json({message: userMessages.GET_ME_SUCCESS, result: user})
 }

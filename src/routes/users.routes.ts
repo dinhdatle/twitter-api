@@ -1,7 +1,9 @@
 import { Router } from 'express'
+import { get } from 'lodash'
 import {
   emailVerifyController,
   forgotPasswordController,
+  getMeController,
   loginController,
   logoutController,
   registerController,
@@ -11,6 +13,7 @@ import {
 } from '~/controllers/users.controllers'
 import {
   accessTokenValidator,
+
   emailVerifyTokenValidator,
   forgotPasswordValidator,
   loginValidator,
@@ -28,8 +31,12 @@ usersRouter.post('/logout', accessTokenValidator, refreshTokenValidator, wrapReq
 usersRouter.post('/verify', emailVerifyTokenValidator, wrapRequestHandler(emailVerifyController))
 usersRouter.post('/resend-verify-email', accessTokenValidator, wrapRequestHandler(resendVerifyEmailController))
 usersRouter.post('/forgot_password', forgotPasswordValidator, wrapRequestHandler(forgotPasswordController))
-usersRouter.post('/verify_forgot_password', verifyForgotPasswordTokenValidator, wrapRequestHandler(verifyForgotPasswordController))
+usersRouter.post(
+  '/verify_forgot_password',
+  verifyForgotPasswordTokenValidator,
+  wrapRequestHandler(verifyForgotPasswordController)
+)
 usersRouter.post('/reset_password', resetPasswordValidator, wrapRequestHandler(resetPasswordController))
-
+usersRouter.get('/me', accessTokenValidator, wrapRequestHandler(getMeController))
 
 export default usersRouter
