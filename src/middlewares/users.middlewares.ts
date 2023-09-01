@@ -2,9 +2,11 @@ import e, { Request, Response, NextFunction } from 'express'
 import { ParamSchema, check, checkSchema } from 'express-validator'
 import { JsonWebTokenError } from 'jsonwebtoken'
 import { ObjectId } from 'mongodb'
+import { UserVerifyStatus } from '~/constants/enums'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { userMessages } from '~/constants/messages'
 import { ErrorWithStatus } from '~/models/Errors'
+import { TokenPayload } from '~/models/requests/User.requests'
 import databaseService from '~/services/database.services'
 import usersService from '~/services/users.services'
 import { hashPassword } from '~/utils/crypto'
@@ -430,6 +432,219 @@ export const resetPasswordValidator = validate(
           }
         }
       }
+    },
+    ['body']
+  )
+)
+
+export const verifiedUserValidator = (req: Request, res: Response, next: NextFunction) => {
+  const { verify } = req.decoded_authorization as TokenPayload
+  if (verify !== UserVerifyStatus.Verified) {
+    throw new ErrorWithStatus({
+      message: userMessages.USER_NOT_VERIFIED,
+      status: HTTP_STATUS.FORBIDDEN
+    })
+  }
+  next()
+}
+
+export const updateMeValidator = validate(
+  checkSchema(
+    {
+      name: {
+        optional: true,
+        notEmpty: {
+          errorMessage: userMessages.NAME_IS_REQUIRED
+        },
+        isString: {
+          errorMessage: userMessages.NAME_MUST_BE_STRING
+        },
+        isLength: {
+          options: {
+            min: 1,
+            max: 100
+          },
+          errorMessage: userMessages.NAME_LENGTH_MUST_BE_FROM_1_TO_100
+        },
+        trim: true
+      },
+      date_of_birth: {
+        optional: true,
+        isISO8601: {
+          options: {
+            strict: true,
+            strictSeparator: true
+          },
+          errorMessage: userMessages.DATE_MUST_BE_ISO_8601
+        }
+      },
+      bio: {
+        optional: true,
+        isString: { errorMessage: userMessages.BIO_MUST_BE_STRING },
+        trim: true,
+        isLength: {
+          options: {
+            min: 1,
+            max: 200
+          },
+          errorMessage: userMessages.BIO_LENGTH_MUST_BE_FROM_1_TO_200
+        }
+      },
+      location: {
+        optional: true,
+        isString: { errorMessage: userMessages.LOCATION_MUST_BE_STRING },
+        trim: true,
+        isLength: {
+          options: {
+            min: 1,
+            max: 200
+          },
+          errorMessage: userMessages.LOCATION_LENGTH_MUST_BE_FROM_1_TO_200
+        }
+      },
+      website: {
+        optional: true,
+        isURL: { errorMessage: userMessages.WEBSITE_MUST_BE_URL },
+        trim: true,
+        isLength: {
+          options: {
+            min: 1,
+            max: 200
+          },
+          errorMessage: userMessages.WEBSITE_LENGTH_MUST_BE_FROM_1_TO_200
+        }
+      },
+      username: {
+        optional: true,
+        isString: { errorMessage: userMessages.USERNAME_MUST_BE_STRING },
+        trim: true,
+        custom: {
+          options: async (value, { req }) => {
+            const REGEX = /^(?![0-9]+$)[A-Za-z0-9_]{4,15}$/
+            if (!REGEX.test(value)) {
+              throw new Error(userMessages.USERNAME_INVALID)
+            }
+            const user = await databaseService.users.findOne({ username: value })
+            // ton tai username trong db
+            if (user) {
+              throw Error('USERNAME EXITST')
+            }
+          }
+        }
+      },
+      avatar: {
+        optional: true,
+        isString: { errorMessage: userMessages.IMAGE_URL_MUST_BE_STRING },
+        trim: true,
+        isLength: {
+          options: {
+            min: 1,
+            max: 400
+          },
+          errorMessage: userMessages.IMAGE_URL_LENGTH_MUST_BE_FROM_1_TO_400
+        }
+      },
+      cover_photo: {
+        optional: true,
+        isString: { errorMessage: userMessages.IMAGE_URL_MUST_BE_STRING },
+        trim: true,
+        isLength: {
+          options: {
+            min: 1,
+            max: 400
+          },
+          errorMessage: userMessages.IMAGE_URL_LENGTH_MUST_BE_FROM_1_TO_400
+        }
+      }
+    },
+    ['body']
+  )
+)
+
+export const followValidator = validate(
+  checkSchema({
+    followed_user_id: {
+      custom: {
+        options: async (value: string, { req }) => {
+          if (!ObjectId.isValid(value)) {
+            throw new ErrorWithStatus({
+              message: userMessages.USER_NOT_FOUND,
+              status: HTTP_STATUS.NOT_FOUND
+            })
+          }
+          const followed_user = await databaseService.users.findOne({
+            _id: new ObjectId(value)
+          })
+
+          if (followed_user === null) {
+            throw new ErrorWithStatus({
+              message: userMessages.USER_NOT_FOUND,
+              status: HTTP_STATUS.NOT_FOUND
+            })
+          }
+        }
+      }
+    }
+  })
+)
+
+export const unfollowValidator = validate(
+  checkSchema(
+    {
+      user_id: {
+        custom: {
+          options: async (value: string, { req }) => {
+            if (!ObjectId.isValid(value)) {
+              throw new ErrorWithStatus({
+                message: userMessages.USER_NOT_FOUND,
+                status: HTTP_STATUS.NOT_FOUND
+              })
+            }
+            const followed_user = await databaseService.users.findOne({
+              _id: new ObjectId(value)
+            })
+
+            if (followed_user === null) {
+              throw new ErrorWithStatus({
+                message: userMessages.USER_NOT_FOUND,
+                status: HTTP_STATUS.NOT_FOUND
+              })
+            }
+          }
+        }
+      }
+    },
+    ['params']
+  )
+)
+
+export const changePasswordValidator = validate(
+  checkSchema(
+    {
+      old_password: {
+        ...passwordSchema,
+        custom: {
+          options: async (value: string, { req }) => {
+            const { user_id } = req.decoded_authorization
+            const user = await databaseService.users.findOne({
+              _id: new ObjectId(user_id)
+            })
+            if (user === null) {
+              throw new ErrorWithStatus({
+                message: userMessages.USER_NOT_FOUND,
+                status: HTTP_STATUS.NOT_FOUND
+              })
+            }
+            const { password } = user
+            const isMatch = hashPassword(value) === password
+            if (!isMatch) {
+              throw new ErrorWithStatus({ message: 'OLD PASSWORD NOT MATCH', status: HTTP_STATUS.UNAUTHORIZED })
+            }
+          }
+        }
+      },
+      password: passwordSchema,
+      confirm_password:confirmPasswordSchema
     },
     ['body']
   )

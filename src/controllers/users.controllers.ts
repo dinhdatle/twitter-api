@@ -1,10 +1,18 @@
 import { NextFunction, Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
+import { pick } from 'lodash'
 import { ObjectId } from 'mongodb'
 import { UserVerifyStatus } from '~/constants/enums'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { userMessages } from '~/constants/messages'
-import { ForgotPasswordReqBody, RegisterReqBody, TokenPayload } from '~/models/requests/User.requests'
+import {
+  FollowReqBody,
+  ForgotPasswordReqBody,
+  RegisterReqBody,
+  TokenPayload,
+  UpdateMeReqBody,
+  unfollowReqParams
+} from '~/models/requests/User.requests'
 import User from '~/models/schemas/User.schemas'
 import databaseService from '~/services/database.services'
 import usersService from '~/services/users.services'
@@ -12,7 +20,7 @@ import usersService from '~/services/users.services'
 export const loginController = async (req: Request, res: Response) => {
   const user = req.user as User
   const user_id = user._id as ObjectId
-  const result = await usersService.login(user_id.toString())
+  const result = await usersService.login({ user_id: user_id.toString(), verify: user.verify })
   return res.json({ message: userMessages.LOGIN_SUCCESS, result })
 }
 // export const registerController = async (req: Request<ParamsDictionary, any, RegisterReqBody>, res: Response) => {
@@ -66,8 +74,8 @@ export const forgotPasswordController = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { _id } = req.user as User
-  const result = await usersService.forgotPassword((_id as ObjectId).toString())
+  const { _id, verify } = req.user as User
+  const result = await usersService.forgotPassword({ user_id: (_id as ObjectId).toString(), verify: verify })
   return res.json(result)
 }
 
@@ -85,5 +93,56 @@ export const resetPasswordController = async (req: Request, res: Response, next:
 export const getMeController = async (req: Request, res: Response, next: NextFunction) => {
   const { user_id } = req.decoded_authorization as TokenPayload
   const user = await usersService.getMe(user_id)
-  return res.json({message: userMessages.GET_ME_SUCCESS, result: user})
+  return res.json({ message: userMessages.GET_ME_SUCCESS, result: user })
+}
+
+export const updateMeController = async (
+  req: Request<ParamsDictionary, any, UpdateMeReqBody>,
+  res: Response,
+  next: NextFunction
+) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const body = req.body
+  const result = await usersService.updateMe(user_id, body)
+  return res.json({ message: userMessages.UPDATE_ME_SUCCESS, result })
+}
+
+export const getProfileController = async (req: Request, res: Response, next: NextFunction) => {
+  const { username } = req.params
+  console.log(username)
+  const user = await usersService.getProfile(username)
+  return res.json({ message: userMessages.GET_PROFILE_SUCCESS, result: user })
+}
+
+export const followController = async (
+  req: Request<ParamsDictionary, any, FollowReqBody>,
+  res: Response,
+  next: NextFunction
+) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { followed_user_id } = req.body
+  const result = await usersService.follow(user_id, followed_user_id as string)
+  return res.json({ result })
+}
+
+export const unfollowController = async (
+  req: Request<ParamsDictionary, any, unfollowReqParams>,
+  res: Response,
+  next: NextFunction
+) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { user_id: followed_user_id } = req.params
+  const result = await usersService.unfollow(user_id, followed_user_id as string)
+  return res.json({ result })
+}
+
+export const changePasswordController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { password } = req.body
+  const result = await usersService.changePassword(user_id,password)
+  return res.json({ result })
 }
