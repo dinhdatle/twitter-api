@@ -7,6 +7,7 @@ export const userMessages = {
   EMAIL_ALREADY_EXISTS: 'Email already exists',
   EMAIL_IS_REQUIRED: 'Email is required',
   EMAIL_IS_INVALID: 'Email is invalid',
+  GMAIL_NOT_VERIFIED:'Email not verified',
   PASSWORD_MUST_BE_STRING: 'Password must be a string',
   PASSWORD_IS_REQUIRED: 'Password is required',
   PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50: 'Password length must be from 6 to 50',

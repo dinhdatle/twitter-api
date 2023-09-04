@@ -23,6 +23,17 @@ export const loginController = async (req: Request, res: Response) => {
   const result = await usersService.login({ user_id: user_id.toString(), verify: user.verify })
   return res.json({ message: userMessages.LOGIN_SUCCESS, result })
 }
+
+export const oauthController = async (req: Request, res: Response) => {
+  const { code } = req.query
+  const result = await usersService.oauth(code as string)
+  const urlRedirect = `${process.env.CLIENT_REDIRECT}?access_token=${result.access_token}&refresh_token=${result.refresh_token}&newUser=${result.newUser}`
+  return res.redirect(urlRedirect)
+  // return res.json({
+  //   message: result.newUser ? userMessages.REGISTER_SUCCESS : userMessages.LOGIN_SUCCESS,
+  //   result : 
+  // })
+}
 // export const registerController = async (req: Request<ParamsDictionary, any, RegisterReqBody>, res: Response) => {
 export const registerController = async (req: Request, res: Response, next: NextFunction) => {
   // try {
@@ -136,13 +147,9 @@ export const unfollowController = async (
   return res.json({ result })
 }
 
-export const changePasswordController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const changePasswordController = async (req: Request, res: Response, next: NextFunction) => {
   const { user_id } = req.decoded_authorization as TokenPayload
   const { password } = req.body
-  const result = await usersService.changePassword(user_id,password)
+  const result = await usersService.changePassword(user_id, password)
   return res.json({ result })
 }

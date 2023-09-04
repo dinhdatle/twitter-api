@@ -644,7 +644,7 @@ export const changePasswordValidator = validate(
         }
       },
       password: passwordSchema,
-      confirm_password:confirmPasswordSchema
+      confirm_password: confirmPasswordSchema
     },
     ['body']
   )
