@@ -25,15 +25,13 @@ export const signToken = ({
 
 export const verifyToken = ({ token, secretKey }: { token: string; secretKey: string }) => {
   // return new Promise<jwt.JwtPayload>((reslove, reject) => {
-    return new Promise<TokenPayload>((reslove, reject) => {
-
+  return new Promise<TokenPayload>((reslove, reject) => {
     jwt.verify(token, secretKey, (error, decoded) => {
       if (error) {
         throw reject(error)
       }
       reslove(decoded as TokenPayload)
       // reslove(decoded as jwt.JwtPayload)
-
     })
   })
 }

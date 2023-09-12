@@ -8,6 +8,7 @@ import path from 'path'
 import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from './constants/dir'
 import staticRouter from './routes/static.routes'
 import databaseService from './services/database.services'
+import tweetRouter from './routes/tweets.routes'
 
 config()
 const app = express()
@@ -15,6 +16,8 @@ const port = process.env.PORT || 4000
 app.use(express.json())
 databaseService.connect().then(() => {
   databaseService.indexUsers()
+  databaseService.indexRefreshTokens()
+  databaseService.indexFollowers()
 })
 
 // Kiem tra xem co file uploads
@@ -22,6 +25,8 @@ initFolder()
 
 app.use('/users', usersRouter)
 app.use('/medias', mediasRouter)
+app.use('/tweets', tweetRouter)
+
 // app.use('/static/image', express.static(UPLOAD_IMAGE_DIR))
 app.use('/static/video', express.static(UPLOAD_VIDEO_DIR))
 app.use('/static', staticRouter)

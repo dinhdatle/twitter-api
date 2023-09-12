@@ -53,8 +53,8 @@ class UsersService {
       }
     })
   }
-  private decodeRefreshToken(refresh_token:string){
-    return verifyToken({token:refresh_token, secretKey:process.env.JWT_SECRET_REFRESH_TOKEN as string})
+  private decodeRefreshToken(refresh_token: string) {
+    return verifyToken({ token: refresh_token, secretKey: process.env.JWT_SECRET_REFRESH_TOKEN as string })
   }
   private signEmailVerifyToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
     return signToken({
@@ -102,7 +102,7 @@ class UsersService {
       user_id: user_id.toString(),
       verify: UserVerifyStatus.Unverified
     })
-    const {iat,exp} = await this.decodeRefreshToken(refresh_token)
+    const { iat, exp } = await this.decodeRefreshToken(refresh_token)
     await databaseService.refeshTokens.insertOne(
       new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token, iat, exp })
     )
@@ -126,7 +126,7 @@ class UsersService {
       this.signRefreshToken({ user_id, verify, exp }),
       databaseService.refeshTokens.deleteOne({ token: refresh_token })
     ])
-    const {iat} = await this.decodeRefreshToken(new_refresh_token) // exp trung voi token cu nen khong can lay 
+    const { iat } = await this.decodeRefreshToken(new_refresh_token) // exp trung voi token cu nen khong can lay
 
     await databaseService.refeshTokens.insertOne(
       new RefreshToken({ user_id: new ObjectId(user_id), token: new_refresh_token, iat, exp })
@@ -139,10 +139,10 @@ class UsersService {
   }
   async login({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
     const [access_token, refresh_token] = await this.signAccessAndRefreshToken({ user_id, verify })
-    const {iat,exp} = await this.decodeRefreshToken(refresh_token)
+    const { iat, exp } = await this.decodeRefreshToken(refresh_token)
 
     await databaseService.refeshTokens.insertOne(
-      new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token,iat, exp })
+      new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token, iat, exp })
     )
     return { access_token, refresh_token }
   }
@@ -192,9 +192,11 @@ class UsersService {
         user_id: user._id.toString(),
         verify: UserVerifyStatus.Verified
       })
-      const {iat,exp} = await this.decodeRefreshToken(refresh_token)
+      const { iat, exp } = await this.decodeRefreshToken(refresh_token)
 
-      await databaseService.refeshTokens.insertOne(new RefreshToken({ user_id: user._id, token: refresh_token, iat, exp }))
+      await databaseService.refeshTokens.insertOne(
+        new RefreshToken({ user_id: user._id, token: refresh_token, iat, exp })
+      )
       return { access_token, refresh_token, newUser: false }
     } else {
       const randomPassword = Math.random().toString(36).substring(2, 10)
