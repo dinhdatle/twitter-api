@@ -268,6 +268,7 @@ export const refreshTokenValidator = validate(
               }
               throw error
             }
+            return true
           }
         }
       }

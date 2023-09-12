@@ -7,7 +7,7 @@ export const userMessages = {
   EMAIL_ALREADY_EXISTS: 'Email already exists',
   EMAIL_IS_REQUIRED: 'Email is required',
   EMAIL_IS_INVALID: 'Email is invalid',
-  GMAIL_NOT_VERIFIED:'Email not verified',
+  GMAIL_NOT_VERIFIED: 'Email not verified',
   PASSWORD_MUST_BE_STRING: 'Password must be a string',
   PASSWORD_IS_REQUIRED: 'Password is required',
   PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50: 'Password length must be from 6 to 50',
@@ -53,5 +53,6 @@ export const userMessages = {
   IMAGE_URL_LENGTH_MUST_BE_FROM_1_TO_400: 'Image URL length must be from 1 to 400',
   UPDATE_ME_SUCCESS: 'Update me success',
   USERNAME_INVALID:
-    'Username must be 4-15 characters long and contain only letters, numbers, underscores, not only numbers'
+    'Username must be 4-15 characters long and contain only letters, numbers, underscores, not only numbers',
+  REFRESH_TOKEN_SUCCESS: 'Refresh token success'
 } as const

@@ -8,6 +8,7 @@ import { userMessages } from '~/constants/messages'
 import {
   FollowReqBody,
   ForgotPasswordReqBody,
+  RefreshTokenReqBody,
   RegisterReqBody,
   TokenPayload,
   UpdateMeReqBody,
@@ -31,7 +32,7 @@ export const oauthController = async (req: Request, res: Response) => {
   return res.redirect(urlRedirect)
   // return res.json({
   //   message: result.newUser ? userMessages.REGISTER_SUCCESS : userMessages.LOGIN_SUCCESS,
-  //   result : 
+  //   result :
   // })
 }
 // export const registerController = async (req: Request<ParamsDictionary, any, RegisterReqBody>, res: Response) => {
@@ -44,6 +45,19 @@ export const registerController = async (req: Request, res: Response, next: Next
   // }
   const result = await usersService.register(req.body)
   return res.json({ message: 'Register success', result })
+}
+
+export const refreshTokenController = async (
+  req: Request<ParamsDictionary, any, RefreshTokenReqBody>,
+  res: Response
+) => {
+  const { user_id, verify, exp } = req.decoded_refresh_token as TokenPayload
+  const { refresh_token } = req.body
+  const result = await usersService.refreshToken({ user_id, verify, refresh_token, exp })
+  return res.json({
+    message: userMessages.REFRESH_TOKEN_SUCCESS,
+    result
+  })
 }
 
 export const logoutController = async (req: Request, res: Response) => {
