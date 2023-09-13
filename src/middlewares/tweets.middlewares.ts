@@ -60,7 +60,6 @@ export const createTweetValidator = validate(
             throw new Error(TWEETS_MESSAGES.CONTENT_MUST_BE_EMPTY_STRING)
           }
           return true
-
         }
       }
     },
@@ -69,11 +68,10 @@ export const createTweetValidator = validate(
       custom: {
         options: (value, { req }) => {
           // Yeu cau moi phan tu trong array la string
-          if (!value.every((item: any) => typeof item === 'string')){
+          if (!value.every((item: any) => typeof item === 'string')) {
             throw new Error(TWEETS_MESSAGES.HASHTAGS_MUST_BE_AN_ARRAY_OF_STRING)
           }
           return true
-
         }
       }
     },
@@ -82,8 +80,7 @@ export const createTweetValidator = validate(
       custom: {
         options: (value, { req }) => {
           // Yeu cau moi phan tu trong array la user_id
-          if (!value.every((item: any) => ObjectId.isValid(item)))
-          {
+          if (!value.every((item: any) => ObjectId.isValid(item))) {
             throw new Error(TWEETS_MESSAGES.MENTIONS_MUST_BE_AN_ARRAY_OF_USER_ID)
           }
           return true

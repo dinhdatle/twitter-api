@@ -5,6 +5,12 @@ import { accessTokenValidator, verifiedUserValidator } from '~/middlewares/users
 import { wrapRequestHandler } from '~/utils/handlers'
 const tweetRouter = Router()
 
-tweetRouter.post('/', accessTokenValidator, verifiedUserValidator,createTweetValidator,wrapRequestHandler(createTweetController))
+tweetRouter.post(
+  '/',
+  accessTokenValidator,
+  verifiedUserValidator,
+  createTweetValidator,
+  wrapRequestHandler(createTweetController)
+)
 
 export default tweetRouter
