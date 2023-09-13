@@ -56,3 +56,15 @@ export const userMessages = {
     'Username must be 4-15 characters long and contain only letters, numbers, underscores, not only numbers',
   REFRESH_TOKEN_SUCCESS: 'Refresh token success'
 } as const
+
+export const TWEETS_MESSAGES = {
+  INVALID_TYPE: 'Invalid type',
+  INVALID_AUDIENCE: 'Invalid Audience',
+  PARENT_ID_MUST_BE_A_VALID_TWEET_ID: 'Parent ID must be a valid tweet id',
+  PARENT_ID_MUST_BE_NULL: 'Parent id must be null',
+  CONTENT_MUST_BE_A_NON_EMPTY_STRING: 'Content must be a non empty string',
+  CONTENT_MUST_BE_EMPTY_STRING: 'Content must be empty string',
+  HASHTAGS_MUST_BE_AN_ARRAY_OF_STRING: 'Hashtags must be an array string',
+  MENTIONS_MUST_BE_AN_ARRAY_OF_USER_ID: 'Mentions must be an array of user id',
+  MIDIAS_MUST_BE_AN_ARRAY_OF_MEDIA_OBJECT: 'Medias must be an array of media object'
+} as const

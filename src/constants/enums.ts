@@ -23,7 +23,6 @@ export enum TweetType {
   QuoteTweet
 }
 
-
 export enum TweetAudience {
   Everyone,
   TwitterCircle
