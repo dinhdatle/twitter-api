@@ -66,5 +66,17 @@ export const TWEETS_MESSAGES = {
   CONTENT_MUST_BE_EMPTY_STRING: 'Content must be empty string',
   HASHTAGS_MUST_BE_AN_ARRAY_OF_STRING: 'Hashtags must be an array string',
   MENTIONS_MUST_BE_AN_ARRAY_OF_USER_ID: 'Mentions must be an array of user id',
-  MIDIAS_MUST_BE_AN_ARRAY_OF_MEDIA_OBJECT: 'Medias must be an array of media object'
+  MIDIAS_MUST_BE_AN_ARRAY_OF_MEDIA_OBJECT: 'Medias must be an array of media object',
+  TWEET_NOT_FOUND: 'Tweet not found',
+  INVALID_TWEET_ID: 'Invalid tweet'
+} as const
+
+export const BOOKMARKS_MESSAGES = {
+  BOOKMARK_SUCCESS: 'Bookmark success',
+  UNBOOKMARK_SUCCESS: 'Unbookmark success'
+} as const
+
+export const LIKES_MESSAGES = {
+  LIKE_SUCCESS: 'Like success',
+  UNLIKE_SUCCESS: 'Unlike success'
 } as const
