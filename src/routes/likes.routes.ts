@@ -1,8 +1,8 @@
-import { Router } from "express";
-import { likeTweetController, unlikeTweetController } from "~/controllers/likes.controller";
-import { tweetIdValidator } from "~/middlewares/tweets.middlewares";
-import { accessTokenValidator, verifiedUserValidator } from "~/middlewares/users.middlewares";
-import { wrapRequestHandler } from "~/utils/handlers";
+import { Router } from 'express'
+import { likeTweetController, unlikeTweetController } from '~/controllers/likes.controller'
+import { tweetIdValidator } from '~/middlewares/tweets.middlewares'
+import { accessTokenValidator, verifiedUserValidator } from '~/middlewares/users.middlewares'
+import { wrapRequestHandler } from '~/utils/handlers'
 
 const likesRouter = Router()
 
@@ -23,4 +23,3 @@ likesRouter.delete(
 )
 
 export default likesRouter
-

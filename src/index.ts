@@ -31,7 +31,6 @@ app.use('/tweets', tweetRouter)
 app.use('/bookmarks', bookmarksRouter)
 app.use('/likes', likesRouter)
 
-
 // app.use('/static/image', express.static(UPLOAD_IMAGE_DIR))
 app.use('/static/video', express.static(UPLOAD_VIDEO_DIR))
 app.use('/static', staticRouter)

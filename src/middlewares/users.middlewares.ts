@@ -205,14 +205,12 @@ export const accessTokenValidator = validate(
         custom: {
           options: async (value: string, { req }) => {
             const accessToken = (value || '').split(' ')[1]
-
             if (!accessToken) {
               throw new ErrorWithStatus({
                 message: userMessages.ACCESS_TOKEN_IS_REQUIRED,
                 status: HTTP_STATUS.UNAUTHORIZED
               })
             }
-
             try {
               const decoded_authorization = await verifyToken({
                 token: accessToken,
@@ -650,3 +648,13 @@ export const changePasswordValidator = validate(
     ['body']
   )
 )
+
+export const isUserLoggedInValidator = (middleware: (req: Request, res: Response, next: NextFunction) => void) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (req.headers.authorization) {
+      return middleware(req, res, next)
+    }
+    next()
+  }
+}
+

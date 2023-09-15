@@ -3,7 +3,6 @@ import databaseService from './database.services'
 import Like from '~/models/schemas/Like.schema'
 import { ObjectId } from 'mongodb'
 
-
 class LikesService {
   async likeTweet(user_id: string, tweet_id: string) {
     const result = await databaseService.likes.findOneAndUpdate(
@@ -18,9 +17,10 @@ class LikesService {
         })
       },
       {
-        upsert:true,
+        upsert: true,
         returnDocument: 'after'
-      })
+      }
+    )
     return result.value
   }
   async unlikeTweet(user_id: string, tweet_id: string) {
