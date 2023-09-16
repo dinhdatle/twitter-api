@@ -657,4 +657,3 @@ export const isUserLoggedInValidator = (middleware: (req: Request, res: Response
     next()
   }
 }
-
