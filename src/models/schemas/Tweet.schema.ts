@@ -28,7 +28,7 @@ export default class Tweet {
   hashtags: ObjectId[]
   mentions: ObjectId[]
   medias: Media[]
-  guest_views?: number
+  guest_views: number
   user_views: number
   created_at: Date
   updated_at: Date
