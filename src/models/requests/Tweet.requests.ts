@@ -1,6 +1,6 @@
 import { TweetAudience, TweetType } from '~/constants/enums'
 import { Media } from '../other'
-import {ParamsDictionary,Query} from 'express-serve-static-core'
+import { ParamsDictionary, Query } from 'express-serve-static-core'
 
 export interface TweetRequestBody {
   type: TweetType
@@ -11,7 +11,6 @@ export interface TweetRequestBody {
   mentions: string[] // user_id[]
   medias: Media[]
 }
-
 
 export interface TweetParam extends ParamsDictionary {
   tweet_id: string

@@ -11,6 +11,7 @@ import databaseService from './services/database.services'
 import tweetRouter from './routes/tweets.routes'
 import bookmarksRouter from './routes/bookmarks.routes'
 import likesRouter from './routes/likes.routes'
+// import './utils/faker'
 
 config()
 const app = express()
