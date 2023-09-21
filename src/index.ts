@@ -11,6 +11,7 @@ import databaseService from './services/database.services'
 import tweetRouter from './routes/tweets.routes'
 import bookmarksRouter from './routes/bookmarks.routes'
 import likesRouter from './routes/likes.routes'
+import searchRouter from './routes/search.routes'
 // import './utils/faker'
 
 config()
@@ -21,6 +22,7 @@ databaseService.connect().then(() => {
   databaseService.indexUsers()
   databaseService.indexRefreshTokens()
   databaseService.indexFollowers()
+  databaseService.indexTweets()
 })
 
 // Kiem tra xem co file uploads
@@ -31,6 +33,7 @@ app.use('/medias', mediasRouter)
 app.use('/tweets', tweetRouter)
 app.use('/bookmarks', bookmarksRouter)
 app.use('/likes', likesRouter)
+app.use('/search', searchRouter)
 
 // app.use('/static/image', express.static(UPLOAD_IMAGE_DIR))
 app.use('/static/video', express.static(UPLOAD_VIDEO_DIR))

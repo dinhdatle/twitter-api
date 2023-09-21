@@ -222,13 +222,16 @@ class TweetsService {
   }
 
   async getNewFeeds({ user_id, limit, page }: { user_id: string; limit: number; page: number }) {
+    // Lấy danh sách user_id đang follow
     const followed_user_ids = await databaseService.follower
       .find({ user_id: new ObjectId(user_id) }, { projection: { followed_user_id: 1, _id: 0 } })
       .toArray()
+
     const ids = followed_user_ids.map((item) => item.followed_user_id)
     //  lenh push duoi day la lay them ca tweet cua chinh nguoi do
     ids.push(new ObjectId(user_id))
-    
+
+    // Aggregate lấy tweet những người đang follow
     const tweets = await databaseService.tweets
       .aggregate([
         {
@@ -404,8 +407,7 @@ class TweetsService {
       .toArray()
 
     //  Tang view
-    const tweet_ids = tweets.map((tweets) => tweets.id as ObjectId)
-
+    const tweet_ids = tweets.map((tweet) => tweet._id as ObjectId) // Lấy id các tweet
     await databaseService.tweets.updateMany(
       {
         _id: { $in: tweet_ids }
@@ -413,64 +415,67 @@ class TweetsService {
       { $inc: { user_views: 1 }, $set: { updated_at: new Date() } }
     )
 
-    const total = await databaseService.tweets.aggregate([
-      {
-        $match: {
-          user_id: {
-            $in: ids
-          }
-        }
-      },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'user_id',
-          foreignField: '_id',
-          as: 'user'
-        }
-      },
-      {
-        $unwind: {
-          path: '$user'
-        }
-      },
-      {
-        $match: {
-          $or: [
-            {
-              audience: 0
-            },
-            {
-              $and: [
-                {
-                  audience: 1
-                },
-                {
-                  'user.twitter_circle': {
-                    $in: [new ObjectId(user_id)]
-                  }
-                }
-              ]
-            },
-            {
-              $and: [
-                {
-                  audience: 1
-                },
-                {
-                  user_id: {
-                    $in: [new ObjectId(user_id)]
-                  }
-                }
-              ]
+    // Lấy total các tweet
+    const total = await databaseService.tweets
+      .aggregate([
+        {
+          $match: {
+            user_id: {
+              $in: ids
             }
-          ]
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'user_id',
+            foreignField: '_id',
+            as: 'user'
+          }
+        },
+        {
+          $unwind: {
+            path: '$user'
+          }
+        },
+        {
+          $match: {
+            $or: [
+              {
+                audience: 0
+              },
+              {
+                $and: [
+                  {
+                    audience: 1
+                  },
+                  {
+                    'user.twitter_circle': {
+                      $in: [new ObjectId(user_id)]
+                    }
+                  }
+                ]
+              },
+              {
+                $and: [
+                  {
+                    audience: 1
+                  },
+                  {
+                    user_id: {
+                      $in: [new ObjectId(user_id)]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          $count: 'total'
         }
-      },
-      {
-        $count: 'total' 
-      }
-    ]).toArray()
+      ])
+      .toArray()
 
     // vi cau lenh phia tren da update view nhung khong fetch lai data nen phai tu + hien ra UI
     tweets.forEach((tweet) => {
@@ -478,7 +483,7 @@ class TweetsService {
       tweet.user_views += 1
     })
 
-    return {tweets, total : total[0].total}
+    return { tweets, total: total[0].total }
   }
 }
 
