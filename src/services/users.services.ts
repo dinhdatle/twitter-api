@@ -11,11 +11,13 @@ import { ErrorWithStatus } from '~/models/Errors'
 import HTTP_STATUS from '~/constants/httpStatus'
 import Follower from '~/models/schemas/Follower.schema'
 import axios from 'axios'
+import { sendForgotPasswordEmailTemplate, sendVerifyEmailTemplate } from '~/utils/email'
 
 class UsersService {
   private signAccessAndRefreshToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
     return Promise.all([this.signAccessToken({ user_id, verify }), this.signRefreshToken({ user_id, verify })])
   }
+
   private signAccessToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
     return signToken({
       payload: {
@@ -29,6 +31,7 @@ class UsersService {
       }
     })
   }
+
   private signRefreshToken({ user_id, verify, exp }: { user_id: string; verify: UserVerifyStatus; exp?: number }) {
     if (exp) {
       return signToken({
@@ -53,9 +56,11 @@ class UsersService {
       }
     })
   }
+
   private decodeRefreshToken(refresh_token: string) {
     return verifyToken({ token: refresh_token, secretKey: process.env.JWT_SECRET_REFRESH_TOKEN as string })
   }
+
   private signEmailVerifyToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
     return signToken({
       payload: {
@@ -69,6 +74,7 @@ class UsersService {
       }
     })
   }
+
   private signForgotPasswordToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
     return signToken({
       payload: {
@@ -82,6 +88,7 @@ class UsersService {
       }
     })
   }
+
   async register(payload: RegisterReqBody) {
     const user_id = new ObjectId()
     const email_verify_token = await this.signEmailVerifyToken({
@@ -106,10 +113,19 @@ class UsersService {
     await databaseService.refeshTokens.insertOne(
       new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token, iat, exp })
     )
-    console.log('email_verify_token', email_verify_token)
+
+    // Server send email to user
+    // user click link in emai
+    // Clienr send request to server with email verify token
+    // server verify email verify token
+    // client receive access token and refesh token
+    // console.log('email_verify_token', email_verify_token)
+
+    await sendVerifyEmailTemplate(payload.email, email_verify_token)
 
     return { access_token, refresh_token }
   }
+
   async refreshToken({
     user_id,
     verify,
@@ -133,10 +149,12 @@ class UsersService {
     )
     return { access_token: new_access_token, refresh_token: new_refresh_token }
   }
+
   async checkEmailExist(email: string) {
     const user = await databaseService.users.findOne({ email })
     return Boolean(user)
   }
+
   async login({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
     const [access_token, refresh_token] = await this.signAccessAndRefreshToken({ user_id, verify })
     const { iat, exp } = await this.decodeRefreshToken(refresh_token)
@@ -146,6 +164,7 @@ class UsersService {
     )
     return { access_token, refresh_token }
   }
+
   private async getOauthGoogleToken(code: string) {
     const body = {
       code,
@@ -162,6 +181,7 @@ class UsersService {
 
     return data as { access_token: string; id_token: string }
   }
+
   private async getGoogleUserInfo(access_token: string, id_token: string) {
     const { data } = await axios.get('https://www.googleapis.com/oauth2/v1/userinfo', {
       params: { access_token, alt: 'json' },
@@ -178,6 +198,7 @@ class UsersService {
       locale: string
     }
   }
+
   async oauth(code: string) {
     const { access_token, id_token } = await this.getOauthGoogleToken(code)
     const userInfo = await this.getGoogleUserInfo(access_token, id_token)
@@ -232,12 +253,13 @@ class UsersService {
     return { access_token, refresh_token }
   }
 
-  async resendVerifyEmail(user_id: string) {
+  async resendVerifyEmail(user_id: string, email: string) {
     const email_verify_token = await this.signEmailVerifyToken({
       user_id: user_id.toString(),
       verify: UserVerifyStatus.Unverified
     })
-    console.log('resen_verify_token', email_verify_token)
+    // console.log('resen_verify_token', email_verify_token)
+    await sendVerifyEmailTemplate(email, email_verify_token)
     // cap nhap lai gia tri email_verify_token
     await databaseService.users.updateOne(
       { _id: new ObjectId(user_id) },
@@ -246,14 +268,15 @@ class UsersService {
     return { message: userMessages.RESEND_VERIFY_EMAIL_SUCCESS }
   }
 
-  async forgotPassword({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
+  async forgotPassword({ user_id, verify, email }: { user_id: string; verify: UserVerifyStatus; email: string }) {
     const forgot_password_token = await this.signForgotPasswordToken({ user_id, verify })
     await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
       { $set: { forgot_password_token, updated_at: '$$NOW' } }
     ])
 
     // SEND EMAIL WITH LINK TO EMAIL USER : localhost:3000/reset-password?token=token
-    console.log('forgot_password_token', forgot_password_token)
+    // console.log('forgot_password_token', forgot_password_token)
+    await sendForgotPasswordEmailTemplate(email, forgot_password_token)
     return { message: userMessages.CHECK_EMAIL_TO_RESET_PASSWORD }
   }
 
