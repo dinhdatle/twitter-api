@@ -12,8 +12,10 @@ import tweetRouter from './routes/tweets.routes'
 import bookmarksRouter from './routes/bookmarks.routes'
 import likesRouter from './routes/likes.routes'
 import searchRouter from './routes/search.routes'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
 // import './utils/faker'
-import './utils/s3'
+// import './utils/s3'
 
 config()
 const app = express()
@@ -41,11 +43,33 @@ app.use('/static/video', express.static(UPLOAD_VIDEO_DIR))
 app.use('/static', staticRouter)
 
 app.use(defaultErrorHandler)
-// app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-//   console.log('Loi la', err.message)
-//   res.status(400).json({ error: err.message })
-// })
 
-app.listen(port, () => {
+const httpServer = createServer(app)
+const io = new Server(httpServer, {
+  cors: {
+    origin: 'http://localhost:3000'
+  }
+})
+const users: {[key:string]:{socket_id:string}} = {}
+
+io.on('connection', (socket) => {
+  console.log(`${socket.id} connected`)
+  const user_id = socket.handshake.auth._id
+  users[user_id] = {socket_id: socket.id}
+  console.log(users)
+  socket.on('private message',(data)=> {
+    const receiver_socket_id = users[data.to].socket_id
+    socket.to(receiver_socket_id).emit('receive private message', {content: data.content, from: user_id})
+  })
+  socket.on('disconnect', () => {
+    delete users[user_id]
+    console.log(`user ${socket.id} disconnected`)
+    console.log(users)
+
+  })
+  
+})
+
+httpServer.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
