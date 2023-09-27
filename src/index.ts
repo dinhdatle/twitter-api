@@ -15,6 +15,7 @@ import searchRouter from './routes/search.routes'
 // import { createServer } from 'http'
 // import { Server } from 'socket.io'
 import  cors from 'cors'
+import rateLimit from 'express-rate-limit'
 import YAML from 'yaml'
 import fs from 'fs'
 import swaggerUi from 'swagger-ui-express'
@@ -34,12 +35,19 @@ const swaggerDocument = YAML.parse(file)
 //   apis: ['./src/routes/*.routes.ts'], // files containing annotations as above
 // };
 // const openapiSpecification = swaggerJSdoc(options);
-
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+	// store: ... , // Use an external store for more precise rate limiting
+})
 config()
 const app = express()
 const port = process.env.PORT || 4000
 app.use(express.json())
 app.use(cors())
+app.use(limiter)
 
 databaseService.connect().then(() => {
   databaseService.indexUsers()
