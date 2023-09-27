@@ -121,7 +121,7 @@ class UsersService {
     // client receive access token and refesh token
     // console.log('email_verify_token', email_verify_token)
 
-    await sendVerifyEmailTemplate(payload.email, email_verify_token)
+    // await sendVerifyEmailTemplate(payload.email, email_verify_token)
 
     return { access_token, refresh_token }
   }

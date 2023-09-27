@@ -12,15 +12,35 @@ import tweetRouter from './routes/tweets.routes'
 import bookmarksRouter from './routes/bookmarks.routes'
 import likesRouter from './routes/likes.routes'
 import searchRouter from './routes/search.routes'
-import { createServer } from 'http'
-import { Server } from 'socket.io'
-// import './utils/faker'
-// import './utils/s3'
+// import { createServer } from 'http'
+// import { Server } from 'socket.io'
+import  cors from 'cors'
+import YAML from 'yaml'
+import fs from 'fs'
+import swaggerUi from 'swagger-ui-express'
+// import swaggerJSdoc from 'swagger-jsdoc'
+
+const file = fs.readFileSync(path.resolve('twitter-swagger.yaml'),'utf8')
+const swaggerDocument = YAML.parse(file)
+
+// const options: swaggerJSdoc.Options = {
+//   definition: {
+//     openapi: '3.0.0',
+//     info: {
+//       title: 'Twitter clone API',
+//       version: '1.0.0',
+//     },
+//   },
+//   apis: ['./src/routes/*.routes.ts'], // files containing annotations as above
+// };
+// const openapiSpecification = swaggerJSdoc(options);
 
 config()
 const app = express()
 const port = process.env.PORT || 4000
 app.use(express.json())
+app.use(cors())
+
 databaseService.connect().then(() => {
   databaseService.indexUsers()
   databaseService.indexRefreshTokens()
@@ -30,7 +50,7 @@ databaseService.connect().then(() => {
 
 // Kiem tra xem co file uploads
 initFolder()
-
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/users', usersRouter)
 app.use('/medias', mediasRouter)
 app.use('/tweets', tweetRouter)
@@ -44,32 +64,30 @@ app.use('/static', staticRouter)
 
 app.use(defaultErrorHandler)
 
-const httpServer = createServer(app)
-const io = new Server(httpServer, {
-  cors: {
-    origin: 'http://localhost:3000'
-  }
-})
-const users: {[key:string]:{socket_id:string}} = {}
+// const httpServer = createServer(app)
+// const io = new Server(httpServer, {
+//   cors: {
+//     origin: 'http://localhost:3000'
+//   }
+// })
+// const users: { [key: string]: { socket_id: string } } = {}
 
-io.on('connection', (socket) => {
-  console.log(`${socket.id} connected`)
-  const user_id = socket.handshake.auth._id
-  users[user_id] = {socket_id: socket.id}
-  console.log(users)
-  socket.on('private message',(data)=> {
-    const receiver_socket_id = users[data.to].socket_id
-    socket.to(receiver_socket_id).emit('receive private message', {content: data.content, from: user_id})
-  })
-  socket.on('disconnect', () => {
-    delete users[user_id]
-    console.log(`user ${socket.id} disconnected`)
-    console.log(users)
+// io.on('connection', (socket) => {
+//   console.log(`${socket.id} connected`)
+//   const user_id = socket.handshake.auth._id
+//   users[user_id] = { socket_id: socket.id }
+//   console.log(users)
+//   socket.on('private message', (data) => {
+//     const receiver_socket_id = users[data.to].socket_id
+//     socket.to(receiver_socket_id).emit('receive private message', { content: data.content, from: user_id })
+//   })
+//   socket.on('disconnect', () => {
+//     delete users[user_id]
+//     console.log(`user ${socket.id} disconnected`)
+//     console.log(users)
+//   })
+// })
 
-  })
-  
-})
-
-httpServer.listen(port, () => {
+app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
