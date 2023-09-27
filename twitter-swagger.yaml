@@ -9,6 +9,7 @@ info:
   version: 1.0.11
 
 servers:
+  - url: https://api-tw.onrender.com/
   - url: http://localhost:4000
 tags:
   - name: users
