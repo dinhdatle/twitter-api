@@ -20,7 +20,7 @@ if(!fs.existsSync(path.resolve(evnFilename))){
 }
 
 config({
-  path: evnFilename
+  path: '.env'
 })
 
 
