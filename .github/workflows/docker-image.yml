@@ -14,5 +14,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    - name: 'Create env file'
+      run: echo "${{secrets.TWITTER_ENV_PRODUCTION}} "> .env.production
+    - name: Build docker Image
+      run: docker build --progress=plain -t ledinhdat/twitter:v1 .
+    - name: Login to Docker Hub
+      run: docker login -u ${{secrets.DOCKERHUB_USERNAME}} -p ${{secrets.DOCKERHUB_PASSWORD}}
+    - name: Push the Docker
+      run: docker push ledinhdat/twitter:v1
