@@ -12,7 +12,9 @@ import { encodeHLSWithMultipleVideoStreams } from '~/utils/video'
 import { uploadFileToS3 } from '~/utils/s3'
 import mime from 'mime'
 import { CompleteMultipartUploadCommandOutput } from '@aws-sdk/client-s3'
-config()
+config({
+  path: path.resolve(`.env.${process.env.NODE_ENV}`)
+})
 
 class MediasService {
   async uploadImage(req: Request) {

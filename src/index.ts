@@ -42,7 +42,10 @@ const limiter = rateLimit({
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 	// store: ... , // Use an external store for more precise rate limiting
 })
-config()
+
+config({
+  path: path.resolve(`.env.${process.env.NODE_ENV}`)
+})
 const app = express()
 const port = process.env.PORT || 4000
 app.use(express.json())

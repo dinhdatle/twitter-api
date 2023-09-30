@@ -1,31 +1,26 @@
 // import argv from 'minimist'
 // const options = argv(process.argv.slice(2))
-
-import {config} from 'dotenv'
+import dotenv from 'dotenv'
 import fs from 'fs'
 import path from 'path'
 const env = process.env.NODE_ENV
-const evnFilename = `.env.${env}`
-
-if(!env){
-  console.log('Chua cung cap bien moi truong NODE_ENV (vi du: development,production')
-  console.log(`Phat hien NODE_ENV= ${env}`)
+const envFilename = `.env.${env}`
+if (!env) {
+  console.log(`Bạn chưa cung cấp biến môi trường NODE_ENV (ví dụ: development, production)`)
+  console.log(`Phát hiện NODE_ENV = ${env}`)
   process.exit(1)
 }
-console.log(`Phat hien NODE_ENV= ${env}, vi the app se dung file moi truong la ${evnFilename}`)
-if(!fs.existsSync(path.resolve(evnFilename))){
-  console.log(`khong tin thay file mot truong ${evnFilename} `)
-  console.log(`Luu y : app khong dung file .env, vi du moi truong development thi app se dung file .env.development`)
-  console.log(`Vui long tao file ${evnFilename} va than khoi noi dung o file .env.example`)
+console.log(`Phát hiện NODE_ENV = ${env}, vì thế app sẽ dùng file môi trường là ${envFilename}`)
+if (!fs.existsSync(path.resolve(envFilename))) {
+  console.log(`Không tìm thấy file môi trường ${envFilename}`)
+  console.log(`Lưu ý: App không dùng file .env, ví dụ môi trường là development thì app sẽ dùng file .env.development`)
+  console.log(`Vui lòng tạo file ${envFilename} và tham khảo nội dung ở file .env.example`)
   process.exit(1)
-
 }
-
-config({
-  path: evnFilename
+dotenv.config({
+  path: path.resolve(envFilename)
 })
 
-
-
 export const isProduction = env === 'production'
+
 
