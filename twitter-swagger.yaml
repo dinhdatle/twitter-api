@@ -165,6 +165,37 @@ paths:
                   message:
                     type: string
                     example: Logout success
+  /users/verify:
+    post:
+      tags:
+        - users
+      summary: Xác thực email
+      description: Xác thực email
+      operationId: verifyEmail
+      requestBody:
+        description: Email verify token
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email_verify_token:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjUxZTZlYTEyYzkzMjY3ZmU4YTY5MTFlIiwidG9rZW5fdHlwZSI6MywidmVyaWZ5IjowLCJpYXQiOjE2OTY0OTMyOTUsImV4cCI6MTY5NzA5ODA5NX0.76H4XuQpoVKWXnNLqEBoq0D_GnWPsE3Z4O2gamDAa2c
+        required: true
+      responses:
+        '200':
+          description: Xác thực email thanh công 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Email verify success
+                  result: 
+                    $ref: '#/components/schemas/SuccessAuthentication'
   /users/resend-verify-email:
     post:
       tags:
