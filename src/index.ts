@@ -43,9 +43,6 @@ const limiter = rateLimit({
 	// store: ... , // Use an external store for more precise rate limiting
 })
 
-config({
-  path: path.resolve(`.env.${process.env.NODE_ENV}`)
-})
 const app = express()
 const port = process.env.PORT || 4000
 app.use(express.json())
