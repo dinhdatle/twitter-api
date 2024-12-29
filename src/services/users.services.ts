@@ -233,11 +233,25 @@ class UsersService {
   }
 
   async logout(refresh_token: string) {
-    await databaseService.refeshTokens.deleteOne({ token: refresh_token })
-    return { message: userMessages.LOGOUT_SUCCESS }
+    const result = await databaseService.refeshTokens.deleteOne({ token: refresh_token })
+    if (result.deletedCount === 0) {
+      throw new ErrorWithStatus({
+        message: 'Refresh token does not exist or has already been revoked.',
+        status: HTTP_STATUS.UNAUTHORIZED
+      });
+    }
+  
+    return { success: true };
   }
 
   async verifyEmail(user_id: string) {
+      // Tìm và xóa refresh token cũ (nếu có)
+    const oldRefreshToken = await databaseService.refeshTokens.findOne({ user_id: new ObjectId(user_id) });
+    
+    if (oldRefreshToken) {
+      // Nếu refresh token cũ tồn tại, xóa nó đi.
+      await databaseService.refeshTokens.deleteOne({ user_id: new ObjectId(user_id) });
+    }
     const [access_token, refresh_token] = await this.signAccessAndRefreshToken({
       user_id: user_id.toString(),
       verify: UserVerifyStatus.Verified
@@ -258,7 +272,6 @@ class UsersService {
       user_id: user_id.toString(),
       verify: UserVerifyStatus.Unverified
     })
-    // console.log('resen_verify_token', email_verify_token)
     await sendVerifyEmailTemplate(email, email_verify_token)
     // cap nhap lai gia tri email_verify_token
     await databaseService.users.updateOne(

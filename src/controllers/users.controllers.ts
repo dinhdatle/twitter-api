@@ -56,8 +56,24 @@ export const refreshTokenController = async (
 
 export const logoutController = async (req: Request, res: Response) => {
   const { refresh_token } = req.body
-  const result = await usersService.logout(refresh_token)
-  return res.json(result)
+  try {
+    // Xóa refresh token khỏi cơ sở dữ liệu
+    const result = await usersService.logout(refresh_token);
+
+    // Đảm bảo rằng refresh token đã được xóa thành công
+    if (!result) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        message: "Refresh token is already invalid or expired.",
+      });
+    }
+
+    return res.json({ message: "Logout successful." });
+  } catch (error) {
+    return res.status(HTTP_STATUS. INTERNAL_SEVER_ERROR).json({ 
+      message: 'Logout failed',
+      error: (error as Error).message
+    });
+  }
 }
 
 export const emailVerifyController = async (req: Request, res: Response, next: NextFunction) => {
