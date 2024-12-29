@@ -9,8 +9,7 @@ info:
   version: 1.0.11
 
 servers:
-  - url: https://api-tw.onrender.com/
-  - url: http://localhost:4000
+  - url: https://www.clone-tw.io.vn/
 tags:
   - name: users
     description: Các API liên quan đến người dùng twitter

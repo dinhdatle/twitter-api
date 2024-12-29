@@ -32,13 +32,16 @@ const limiter = rateLimit({
 })
 
 const corsOptions = {
-  origin: '*'
-}
+  origin: '*', // Hoặc 'http://your-frontend-domain.com' nếu có domain cụ thể
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Các phương thức được phép
+  allowedHeaders: ['Content-Type', 'Authorization'], // Các header được phép
+};
+
 
 const app = express()
 const port = process.env.PORT || 4000
+app.use(cors(corsOptions));
 app.use(express.json())
-app.use(cors())
 app.use(limiter)
 
 databaseService.connect().then(() => {
